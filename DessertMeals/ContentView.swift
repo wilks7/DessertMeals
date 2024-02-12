@@ -8,41 +8,46 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Environment(Navigation.self) private var navigation
-    
-    @State private var selected: TabItem = .search
+    @StateObject private var model = DessertMealsModel()
+
+    @State private var selected: TabItem = .dessert
     
     var body: some View {
-        @Bindable var navigation = navigation
-            TabView(selection: $selected) {
-                SearchMealsView()
-                    .tabItem { Label(TabItem.search.label, systemImage: TabItem.search.systemImage) }
-                    .tag(TabItem.search)
-                FavoriteMealsList()
-                    .tabItem { Label(TabItem.favorites.label, systemImage: TabItem.favorites.systemImage) }
-                    .tag(TabItem.favorites)
+        TabView(selection: $selected) {
+            DessertMealsView()
+                .tabItem { TabItem.dessert.label }
+                .tag(TabItem.dessert)
+            FavoriteMealsList()
+                .tabItem { TabItem.favorites.label }
+                .tag(TabItem.favorites)
 
-            }
-
+        }
+        .environmentObject(model)
+        .task {
+            model.fetchFavorites()
+            await model.fetchMeals()
+        }
     }
 }
+
 enum TabItem: String, Identifiable, Hashable, CaseIterable {
     
     var id: String { rawValue }
-    case search, categories, favorites
+    case dessert, favorites
     
-    var label: String { rawValue.capitalized }
+    var title: String { rawValue.capitalized }
+    
+    var label: Label<Text,Image> {
+        Label(title, systemImage: systemImage)
+    }
     
     var systemImage: String {
         switch self {
-        case .search:
-            "magnifyingglass"
-        case .categories:
-            "list.bullet"
+        case .dessert:
+            "birthday.cake"
         case .favorites:
             "star"
         }
-        
     }
 }
 

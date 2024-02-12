@@ -27,7 +27,8 @@ struct MealCell: View {
                 }
             )
             .frame(width: size, height: size)
-            Text(name)
+            Text(name.capitalized)
+                .fontWeight(.semibold)
         }
     }
 }

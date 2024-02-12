@@ -47,7 +47,7 @@ extension Meal: Decodable {
         area = try container.decode(String.self, forKey: .area)
         instructions = try container.decode(String.self, forKey: .instructions)
         thumbnail = try container.decodeIfPresent(URL.self, forKey: .thumbnail)
-        tags = try container.decode(String.self, forKey: .tags)
+        tags = try container.decodeIfPresent(String.self, forKey: .tags)
         youtubeURL = try container.decodeIfPresent(URL.self, forKey: .youtubeURL)
         source = try container.decodeIfPresent(URL.self, forKey: .source)
         imageSource = try container.decodeIfPresent(String.self, forKey: .imageSource)
@@ -78,5 +78,39 @@ extension Meal: Decodable {
 
         self.ingredients = ingredients
         self.measures = measures
+    }
+}
+
+extension Meal: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        // Encoding basic properties
+        try container.encode(id, forKey: .id)
+        try container.encode(name, forKey: .name)
+        try container.encodeIfPresent(drinkAlternate, forKey: .drinkAlternate)
+        try container.encode(category, forKey: .category)
+        try container.encode(area, forKey: .area)
+        try container.encode(instructions, forKey: .instructions)
+        try container.encodeIfPresent(thumbnail, forKey: .thumbnail)
+        try container.encodeIfPresent(tags, forKey: .tags)
+        try container.encodeIfPresent(youtubeURL, forKey: .youtubeURL)
+        try container.encodeIfPresent(source, forKey: .source)
+        try container.encodeIfPresent(imageSource, forKey: .imageSource)
+        try container.encodeIfPresent(creativeCommonsConfirmed, forKey: .creativeCommonsConfirmed)
+        try container.encodeIfPresent(dateModified, forKey: .dateModified)
+        
+        // Encoding dynamic properties for ingredients and measures
+        var dynamicContainer = encoder.container(keyedBy: DynamicCodingKeys.self)
+        
+        for i in 1...ingredients.count {
+            let ingredientKey = DynamicCodingKeys(stringValue: "strIngredient\(i)")!
+            let measureKey = DynamicCodingKeys(stringValue: "strMeasure\(i)")!
+            
+            try dynamicContainer.encode(ingredients[i-1], forKey: ingredientKey)
+            if i <= measures.count {
+                try dynamicContainer.encode(measures[i-1], forKey: measureKey)
+            }
+        }
     }
 }

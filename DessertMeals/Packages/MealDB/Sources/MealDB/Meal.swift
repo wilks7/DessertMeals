@@ -15,7 +15,7 @@ public struct Meal: Identifiable, Hashable {
     public let area: String
     public let instructions: String
     public let thumbnail: URL?
-    public let tags: String
+    public let tags: String?
     public let youtubeURL: URL?
     public let ingredients: [String]
     public let measures: [String]
@@ -23,6 +23,11 @@ public struct Meal: Identifiable, Hashable {
     public let imageSource: String?
     public let creativeCommonsConfirmed: String?
     public let dateModified: String?
+}
+extension Meal {
+    public var key: MealKey {
+        .init(id: self.id, name: self.name, thumbnail: self.thumbnail)
+    }
 }
 
 public struct MealKey: Identifiable, Decodable {
